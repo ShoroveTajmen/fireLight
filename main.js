@@ -32,7 +32,7 @@ scene.add(plane);
 
 // Point Light (Firelight)
 // Position the light to the right of the apple
-const pointLight = new THREE.PointLight(0xe23822, 20, 10); // Orange light, intensity, and distance
+const pointLight = new THREE.PointLight(0xe22822, 20, 10); // Orange light, intensity, and distance
 pointLight.position.set(1, 0.5, 0); // Position it to the right of the apple (1, 0.5, 0)
 pointLight.castShadow = true; // Enable shadow casting for the light
 scene.add(pointLight);
@@ -46,9 +46,22 @@ const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5); // 0.5 is 
 scene.add(pointLightHelper);
 
 // Fire Flicker Effect
+let time = 0; // Create a time variable to control the flicker effect
 function animateFire() {
-    pointLight.intensity = 1.5 + Math.random() * 0.5;
-    pointLight.color.setHSL(0.1, 1, 0.5 + Math.random() * 0.2);
+    time += 0.1; // Increment time
+
+    // Increase the range of intensity variation
+    pointLight.intensity = 1.2 + Math.random() * 1.0; // Range: 1.2 to 2.2
+
+    // Mix between two colors for a flickering effect
+    const color1 = new THREE.Color(0xb72f17); // Color for fire
+    const color2 = new THREE.Color(0xffcc00); // A contrasting color for variation
+    const life = (Math.sin(time) + 1) / 2; // Normalize sine wave to [0, 1]
+    pointLight.color.copy(color1.clone().lerp(color2, life)); // Mix colors based on life
+    
+    // Optional: Add some slight hue variation
+    const hueVariation = Math.random() * 0.05;
+    pointLight.color.offsetHSL(hueVariation, 0, 0); // Apply hue variation
 }
 
 // Animate

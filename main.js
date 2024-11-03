@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff); // Set background to white
+
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 5;
 
@@ -10,15 +12,13 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; // Enable shadows
 document.body.appendChild(renderer.domElement);
 
-
 // Add orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
 
 // Apple (Sphere)
 const appleGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-const appleMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+const appleMaterial = new THREE.MeshStandardMaterial({ color: 0xFFE31A });
 const apple = new THREE.Mesh(appleGeometry, appleMaterial);
-apple.castShadow = true; // Enable shadow casting for the apple
 scene.add(apple);
 
 // Table (Plane)
@@ -31,31 +31,30 @@ plane.receiveShadow = true; // Enable shadow reception for the plane
 scene.add(plane);
 
 // Point Light (Firelight)
-const pointLight = new THREE.PointLight(0xffa500, 2, 10); // Orange light, intensity, and distance
-pointLight.position.set(2, 1, -1); // Position it to the side for an interesting shadow effect
+// Position the light to the right of the apple
+const pointLight = new THREE.PointLight(0xe23822, 20, 10); // Orange light, intensity, and distance
+pointLight.position.set(1, 0.5, 0); // Position it to the right of the apple (1, 0.5, 0)
 pointLight.castShadow = true; // Enable shadow casting for the light
 scene.add(pointLight);
 
-// Fire Object (Sphere)
-// const fireGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-// const fireMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500, emissive: 0xff4500 }); // Bright orange color
-// const fire = new THREE.Mesh(fireGeometry, fireMaterial);
-// fire.position.set(2, 1, -1); // Same position as the light
-// scene.add(fire);
+// Ambient Light
+const ambientLight = new THREE.AmbientLight(0x404040, 3); // Soft white light
+scene.add(ambientLight);
+
+// Add a PointLightHelper to visualize the light position
+const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5); // 0.5 is the size of the helper
+scene.add(pointLightHelper);
 
 // Fire Flicker Effect
 function animateFire() {
     pointLight.intensity = 1.5 + Math.random() * 0.5;
     pointLight.color.setHSL(0.1, 1, 0.5 + Math.random() * 0.2);
-
-    // Make the fire sphere flicker slightly
-    // fire.scale.setScalar(0.9 + Math.random() * 0.2); // Slightly changes size to create a flickering effect
 }
 
 // Animate
 function animate() {
     requestAnimationFrame(animate);
-       // Update orbit controls
+    // Update orbit controls
     controls.update();
     animateFire(); // Apply the fire effect
     

@@ -37,11 +37,11 @@ pointLight.castShadow = true; // Enable shadow casting for the light
 scene.add(pointLight);
 
 // Fire Object (Sphere)
-const fireGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-const fireMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500, emissive: 0xff4500 }); // Bright orange color
-const fire = new THREE.Mesh(fireGeometry, fireMaterial);
-fire.position.set(2, 1, -1); // Same position as the light
-scene.add(fire);
+// const fireGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+// const fireMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500, emissive: 0xff4500 }); // Bright orange color
+// const fire = new THREE.Mesh(fireGeometry, fireMaterial);
+// fire.position.set(2, 1, -1); // Same position as the light
+// scene.add(fire);
 
 // Fire Flicker Effect
 function animateFire() {
@@ -49,7 +49,7 @@ function animateFire() {
     pointLight.color.setHSL(0.1, 1, 0.5 + Math.random() * 0.2);
 
     // Make the fire sphere flicker slightly
-    fire.scale.setScalar(0.9 + Math.random() * 0.2); // Slightly changes size to create a flickering effect
+    // fire.scale.setScalar(0.9 + Math.random() * 0.2); // Slightly changes size to create a flickering effect
 }
 
 // Animate

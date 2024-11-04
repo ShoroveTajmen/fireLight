@@ -31,7 +31,6 @@ plane.receiveShadow = true; // Enable shadow reception for the plane
 scene.add(plane);
 
 // Point Light (Firelight)
-// Position the light to the right of the apple
 const pointLight = new THREE.PointLight(0xe22822, 20, 10); // Orange light, intensity, and distance
 pointLight.position.set(1, 0.5, 0); // Position it to the right of the apple (1, 0.5, 0)
 pointLight.castShadow = true; // Enable shadow casting for the light
@@ -46,11 +45,27 @@ const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5); // 0.5 is 
 scene.add(pointLightHelper);
 
 // Fire Flicker Effect
-let time = 0; // Create a time variable to control the flicker effect
-function animateFire() {
-    time += 0.1; // Increment time
+let time = 0;
+let flickerSpeed = 0.02; // Start with a very slow speed
+let speedStage = 1; // Tracks the current stage of speed
 
-    // Increase the range of intensity variation
+function animateFire(deltaTime) {
+    // Increase flickering speed in stages
+    if (time > 5 && speedStage === 1) {
+        flickerSpeed = 0.05; // Medium speed after 5 seconds
+        speedStage = 2;
+    } else if (time > 10 && speedStage === 2) {
+        flickerSpeed = 0.07; // Faster speed after 10 seconds
+        speedStage = 3;
+    } 
+    else if (time > 15 && speedStage === 3) {
+        flickerSpeed = 0.2; // Fastest speed after 15 seconds
+        speedStage = 4;
+    }
+
+    time += deltaTime * flickerSpeed; // Increment time with dynamic speed
+
+    // Adjust intensity to simulate flicker
     pointLight.intensity = 1.2 + Math.random() * 1.0; // Range: 1.2 to 2.2
 
     // Mix between two colors for a flickering effect
@@ -67,9 +82,11 @@ function animateFire() {
 // Animate
 function animate() {
     requestAnimationFrame(animate);
+    const deltaTime = renderer.info.render.frame * 0.016; // Estimate time per frame (assuming ~60fps)
+
     // Update orbit controls
     controls.update();
-    animateFire(); // Apply the fire effect
+    animateFire(deltaTime); // Apply the fire effect with varying speed
     
     renderer.render(scene, camera);
 }

@@ -65,18 +65,49 @@ function animateFire(deltaTime) {
 
     time += deltaTime * flickerSpeed; // Increment time with dynamic speed
 
-    // Adjust intensity to simulate flicker
-    pointLight.intensity = 1.2 + Math.random() * 1.0; // Range: 1.2 to 2.2
+    // // Adjust intensity to simulate flicker
+    // pointLight.intensity = 1.2 + Math.random() * 1.0; // Range: 1.2 to 2.2
 
-    // Mix between two colors for a flickering effect
-    const color1 = new THREE.Color(0xb72f17); // Color for fire
-    const color2 = new THREE.Color(0xffcc00); // A contrasting color for variation
-    const life = (Math.sin(time) + 1) / 2; // Normalize sine wave to [0, 1]
-    pointLight.color.copy(color1.clone().lerp(color2, life)); // Mix colors based on life
+    // // Mix between two colors for a flickering effect
+    // const color1 = new THREE.Color(0xb72f17); // Color for fire
+    // const color2 = new THREE.Color(0xffcc00); // A contrasting color for variation
+    // const life = (Math.sin(time) + 1) / 2; // Normalize sine wave to [0, 1]
+    // pointLight.color.copy(color1.clone().lerp(color2, life)); // Mix colors based on life
     
-    // Optional: Add some slight hue variation
-    const hueVariation = Math.random() * 0.05;
-    pointLight.color.offsetHSL(hueVariation, 0, 0); // Apply hue variation
+    // // Optional: Add some slight hue variation
+    // const hueVariation = Math.random() * 0.05;
+    // pointLight.color.offsetHSL(hueVariation, 0, 0); // Apply hue variation
+    pointLight.intensity = 1.8 + Math.random() * 0.5; // Range: 1.8 to 2.3
+
+    // Define a range of fire colors from hottest (white) to cooler (red and grey)
+    const fireColors = [
+        new THREE.Color(0xffffff), // White, hottest part of the flame
+        new THREE.Color(0xffd700), // Golden yellow
+        new THREE.Color(0xffa500), // Orange
+        new THREE.Color(0xff4500), // Red-orange
+        new THREE.Color(0x8b4513), // Brownish red (coolest, outer flame color)
+        new THREE.Color(0x555555)  // Grey (smoke color, cool part of the fire)
+    ];
+
+    // Use a smooth wave pattern to transition colors naturally
+    const transitionSpeed = 0.3; // Control how quickly colors transition
+    const wave = (Math.sin(time * transitionSpeed) + 1) / 2; // Normalized wave for smooth transition
+
+    // Blend colors across the fireColors array based on the wave value
+    const colorIndex = Math.floor(wave * (fireColors.length - 1));
+    const nextColorIndex = (colorIndex + 1) % fireColors.length; // Loop to the next color
+
+    // Interpolate between the current color and the next for a smooth transition
+    const currentColor = fireColors[colorIndex];
+    const nextColor = fireColors[nextColorIndex];
+    const colorBlendFactor = wave * (fireColors.length - 1) - colorIndex;
+
+    // Blend between the two selected colors
+    pointLight.color.copy(currentColor.clone().lerp(nextColor, colorBlendFactor));
+
+    // Subtle hue variation to add randomness
+    const hueVariation = (Math.random() - 0.5) * 0.03; // Small random hue offset
+    pointLight.color.offsetHSL(hueVariation, 0, 0);
 }
 
 // Animate

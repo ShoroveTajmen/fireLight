@@ -45,70 +45,88 @@ const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5); // 0.5 is 
 scene.add(pointLightHelper);
 
 // Fire Flicker Effect
+// Fire Flicker Effect with Natural Flickering and Subtle Color Variation
+// let time = 0;
+// let flickerSpeed = 0.05; // Set initial flicker speed
+// // let intensityBase = 1.8; // Base intensity
+// let flickerBaseSpeed = 0.05;
+// let flickerIntensityBase = 1.8;
+// let flickerIntensityVariance = 0.5;
+// let flickerSpeedBase = 0.02;
 let time = 0;
-let flickerSpeed = 0.02; // Start with a very slow speed
-let speedStage = 1; // Tracks the current stage of speed
-
+let flickerSpeed = 0.01; // Initial slow speed
+let flickerDirection = 1; // Controls speed increase and decrease
 function animateFire(deltaTime) {
-    // Increase flickering speed in stages
-    if (time > 5 && speedStage === 1) {
-        flickerSpeed = 0.05; // Medium speed after 5 seconds
-        speedStage = 2;
-    } else if (time > 10 && speedStage === 2) {
-        flickerSpeed = 0.07; // Faster speed after 10 seconds
-        speedStage = 3;
-    } 
-    else if (time > 15 && speedStage === 3) {
-        flickerSpeed = 0.2; // Fastest speed after 15 seconds
-        speedStage = 4;
+    // // Update time with a randomized flicker speed, varying slightly for each frame
+    // flickerSpeed = 0.04 + Math.random() * 0.02; // Random speed within a small range
+    // time += deltaTime * flickerSpeed;
+
+    // // Small, random pulsing to simulate intensity flicker
+    // pointLight.intensity = intensityBase + Math.random() * 0.3; // Subtle random range
+    // if (Math.random() > 0.9) {
+    //     flickerBaseSpeed = 0.04 + Math.random() * 0.06; // Speed between 0.04 and 0.1
+    // }
+    // time += deltaTime * flickerBaseSpeed;
+
+    // // Apply a Perlin or sine noise effect to vary intensity smoothly
+    // const flickerNoise = Math.sin(time * 3 + Math.random() * 2); // Irregular pattern
+    // pointLight.intensity = flickerIntensityBase + flickerNoise * flickerIntensityVariance
+    // const baseSpeed = 0.5 + 0.5 * Math.sin(time * 0.1); // Smooth sine variation for base speed
+    // const randomFactor = 0.5 + Math.random() * 0.5;     // Random speed multiplier
+
+    // flickerSpeedBase = baseSpeed * randomFactor * 0.03; // Adjust final speed dynamically
+    // time += deltaTime * flickerSpeedBase;
+       // Adjust flickering speed in a loop pattern
+       if (flickerDirection === 1 && flickerSpeed < 0.06) {
+        flickerSpeed += 0.0005; // Gradually increase speed
+    } else if (flickerDirection === 1 && flickerSpeed >= 0.06) {
+        flickerDirection = -1; // Start slowing down
+    } else if (flickerDirection === -1 && flickerSpeed > 0.01) {
+        flickerSpeed -= 0.0005; // Gradually decrease speed
+    } else if (flickerDirection === -1 && flickerSpeed <= 0.01) {
+        flickerDirection = 1; // Reset to start increasing speed
     }
 
-    time += deltaTime * flickerSpeed; // Increment time with dynamic speed
-
-    // // Adjust intensity to simulate flicker
-    // pointLight.intensity = 1.2 + Math.random() * 1.0; // Range: 1.2 to 2.2
-
-    // // Mix between two colors for a flickering effect
-    // const color1 = new THREE.Color(0xb72f17); // Color for fire
-    // const color2 = new THREE.Color(0xffcc00); // A contrasting color for variation
-    // const life = (Math.sin(time) + 1) / 2; // Normalize sine wave to [0, 1]
-    // pointLight.color.copy(color1.clone().lerp(color2, life)); // Mix colors based on life
-    
-    // // Optional: Add some slight hue variation
-    // const hueVariation = Math.random() * 0.05;
-    // pointLight.color.offsetHSL(hueVariation, 0, 0); // Apply hue variation
+    time += deltaTime * flickerSpeed;
     pointLight.intensity = 1.8 + Math.random() * 0.5; // Range: 1.8 to 2.3
-
-    // Define a range of fire colors from hottest (white) to cooler (red and grey)
+    // Fire color transitions: Blend colors gradually with Perlin/sine wave patterns
     const fireColors = [
-        new THREE.Color(0xffffff), // White, hottest part of the flame
+        new THREE.Color(0xffffff), // White, hottest part
         new THREE.Color(0xffd700), // Golden yellow
         new THREE.Color(0xffa500), // Orange
         new THREE.Color(0xff4500), // Red-orange
-        new THREE.Color(0x8b4513), // Brownish red (coolest, outer flame color)
-        new THREE.Color(0x555555)  // Grey (smoke color, cool part of the fire)
+        new THREE.Color(0x8b4513), // Brownish red
+        new THREE.Color(0x555555)  // Grey, smoke-like
     ];
 
-    // Use a smooth wave pattern to transition colors naturally
-    const transitionSpeed = 0.3; // Control how quickly colors transition
-    const wave = (Math.sin(time * transitionSpeed) + 1) / 2; // Normalized wave for smooth transition
 
-    // Blend colors across the fireColors array based on the wave value
-    const colorIndex = Math.floor(wave * (fireColors.length - 1));
-    const nextColorIndex = (colorIndex + 1) % fireColors.length; // Loop to the next color
+    const blendFactor = (Math.sin(time * 0.8) + 1) / 2; // Smoother sine-based blending
+    const colorIndex = Math.floor(blendFactor * (fireColors.length - 1));
+    const nextColorIndex = (colorIndex + 1) % fireColors.length;
 
-    // Interpolate between the current color and the next for a smooth transition
+    // Blend between two colors based on blendFactor
     const currentColor = fireColors[colorIndex];
     const nextColor = fireColors[nextColorIndex];
-    const colorBlendFactor = wave * (fireColors.length - 1) - colorIndex;
-
-    // Blend between the two selected colors
+    const colorBlendFactor = blendFactor * (fireColors.length - 1) - colorIndex;
     pointLight.color.copy(currentColor.clone().lerp(nextColor, colorBlendFactor));
 
-    // Subtle hue variation to add randomness
-    const hueVariation = (Math.random() - 0.5) * 0.03; // Small random hue offset
+    // Add slight random hue variation for subtle realism
+    const hueVariation = (Math.random() - 0.5) * 0.005; // Smaller hue shift for finer realism
     pointLight.color.offsetHSL(hueVariation, 0, 0);
+    // // pointLight.intensity = 1.5 + Math.random() * 0.8;
+    // // Define warm fire colors for subtle color flicker
+    // const colorA = new THREE.Color(0xffd700); // Golden yellow (near hottest part of flame)
+    // const colorB = new THREE.Color(0xff4500); // Red-orange
+
+    // // Slightly vary color between colorA and colorB to mimic flame flicker
+    // const colorBlendFactor = Math.random() * 0.5; // Random blend factor for subtle flicker
+    // pointLight.color.copy(colorA.clone().lerp(colorB, colorBlendFactor));
+
+    // // Optional: Apply minimal hue variation for randomness
+    // const hueVariation = (Math.random() - 0.5) * 0.01; // Tiny hue shift for realism
+    // pointLight.color.offsetHSL(hueVariation, 0, 0);
 }
+
 
 // Animate
 function animate() {

@@ -25,7 +25,7 @@ let model;
 loader.load("10_14_base_AbrarHair_JonHead_5a.glb", async function (gltf) {
   model = gltf.scene.children[0];
   model.scale.set(0.06, 0.06, 0.06);
-  model.position.set(0, 0.5, 0);
+  model.position.set(0,-1, 0);
   scene.add(model);
 });
 
@@ -52,7 +52,7 @@ pointLight.castShadow = true; // Enable shadow casting for the light
 scene.add(pointLight);
 
 // Ambient Light
-const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft ambient light
+const ambientLight = new THREE.AmbientLight(0xFFF5E1, 0.5); // Soft ambient light
 scene.add(ambientLight);
 
 // Add a PointLightHelper to visualize the light position
@@ -61,7 +61,7 @@ scene.add(pointLightHelper);
 
 // Fire Flicker Effect
 let time = 0;
-let flickerSpeed = 0.02;
+let flickerSpeed = 0.1;
 let flickerDirection = 1;
 
 function animateFire(deltaTime) {

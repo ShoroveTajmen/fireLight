@@ -35,22 +35,24 @@ const helpers = [];
 
 // Define custom center points for each light's orbit
 const centers = [
-  new THREE.Vector3(2, 1, 3), // Center point for the first light
-  new THREE.Vector3(1, 1, 2), // Center point for the second light
-  new THREE.Vector3(2, 1, 3)  // Center point for the third light
+  new THREE.Vector3(2, 1, 3),
+  new THREE.Vector3(1, 1, 2),
+  new THREE.Vector3(2, 1, 3)
 ];
 
-// Set up each light with color, unique radius, speed, and center position
+// Set up each light with color, unique radius, and initial speed
 colors.forEach((color, index) => {
   const light = new THREE.PointLight(color, 1.5, 10);
   scene.add(light);
 
   lights.push({
     light,
-    radius: 0.5 + Math.random() * 0.5, // Random radius between 0.5 and 1.0
-    speed: 0.002 + Math.random() * 0.002, // Random speed between 0.002 and 0.004
-    center: centers[index], // Different orbit center for each light
-    flickerOffset: Math.random() * Math.PI // Random offset for flicker effect
+    baseRadius: 0.1 + Math.random() * 0.5,       // Base radius for orbit
+    radiusVariation: Math.random() * 0.3,        // Random variation in radius
+    baseSpeed: 0.002 + Math.random() * 0.002,    // Base speed
+    speedVariation: 0.00015 + Math.random() * 0.0001, // Speed change range
+    center: centers[index],                      // Different orbit center
+    // flickerOffset: Math.random() * Math.PI       // Offset for flicker effect
   });
 
   const helper = new THREE.PointLightHelper(light, 0.2); // Smaller helper size
@@ -58,18 +60,24 @@ colors.forEach((color, index) => {
   helpers.push(helper);
 });
 
-// Update each light to orbit around its defined center and add up/down motion
+// Update each light to orbit around its defined center with gradual speed changes
 function animateFire() {
   lights.forEach((obj, index) => {
-    const time = performance.now() * obj.speed;
-    
-    // Orbit around the defined center
-    obj.light.position.x = obj.center.x + obj.radius * Math.cos(time);
-    
-    // Add up/down flicker effect using a sine wave
-    obj.light.position.y = obj.center.y + Math.sin(time + obj.flickerOffset) * 0.2; // Flicker range of ±0.2
-    
-    obj.light.position.z = obj.center.z + obj.radius * Math.sin(time);
+    // Smoothly vary speed using a sine function and offset for uniqueness
+    const time = performance.now() * 0.0001;
+    const dynamicSpeed = obj.baseSpeed + Math.sin(time + index) * obj.speedVariation;
+
+    // Orbit radius variation
+    const dynamicRadius = obj.baseRadius + Math.sin(time * 0.5 + index) * obj.radiusVariation;
+
+    // Calculate position with gradually changing speed and radius
+    const positionTime = performance.now() * dynamicSpeed;
+    obj.light.position.x = obj.center.x + dynamicRadius * Math.cos(positionTime);
+    obj.light.position.y = obj.center.y + dynamicRadius * Math.cos(positionTime)/2;
+    obj.light.position.z = obj.center.z + dynamicRadius * Math.sin(positionTime);
+
+    // // Up and down flicker effect
+    // obj.light.position.y = obj.center.y + Math.sin(positionTime + obj.flickerOffset) * 0.2;
 
     // Update the helper to follow each light's position
     helpers[index].update();
@@ -83,7 +91,7 @@ function animate() {
   // Update orbit controls
   controls.update();
 
-  // Animate lights with individual orbit centers and effects
+  // Animate lights with individual orbit centers and dynamic properties
   animateFire();
 
   renderer.render(scene, camera);
